@@ -36,7 +36,7 @@ std::string to_string(const std::multiset<char>& in_set) {
 
 void insert(container_map& map, const container_pair& key_value_pair) {
     auto found_item = std::find_if(std::begin(map), std::end(map),
-                                   [key_value_pair](const container_pair& pair_to_compare) {
+                                   [&key_value_pair](const container_pair& pair_to_compare) {
     return sort_string(key_value_pair.first) == sort_string(pair_to_compare.first);
     });
 
