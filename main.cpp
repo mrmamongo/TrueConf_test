@@ -8,25 +8,15 @@
 using container_map = std::map<std::string, std::multiset<char>>;
 using container_pair = std::pair<std::string, std::multiset<char>>;
 
-
-const char DELIMITER = ' ';
-const std::string BAD_VALUE = "BAD";
-
+namespace {
+    constexpr char Delimiter = ' ';
+    constexpr char* BadValue = "BAD";
+}
 std::string sort_string(const std::string& unsorted) {
     std::string sorted = unsorted;
     std::sort(sorted.begin(), sorted.end());
     return sorted;
 }
-
-struct compare_keys {
-    const container_pair& pair_to_compare;
-    explicit compare_keys(const container_pair& pair): pair_to_compare(pair){}
-    std::string comparison_string_sorted = sort_string(pair_to_compare.first);
-    bool operator()(const container_pair& second_pair) const {
-        std::string right_sorted = sort_string(second_pair.first);
-        return comparison_string_sorted == right_sorted;
-    }
-};
 
 std::multiset<char> from_string(const std::string& s) {
     std::multiset<char> out;
@@ -45,7 +35,10 @@ std::string to_string(const std::multiset<char>& in_set) {
 }
 
 void insert(container_map& map, const container_pair& key_value_pair) {
-    auto found_item = std::find_if(std::begin(map), std::end(map), compare_keys(key_value_pair));
+    auto found_item = std::find_if(std::begin(map), std::end(map),
+                                   [key_value_pair](const container_pair& pair_to_compare) {
+    return sort_string(key_value_pair.first) == sort_string(pair_to_compare.first);
+    });
 
     if (found_item == map.end()) {
         map.insert(key_value_pair);
@@ -66,8 +59,8 @@ void show_map(const container_map& map){
 container_pair split_string(std::string string_to_split){
     size_t pos = 0;
     std::string key;
-    if ((pos = string_to_split.find(DELIMITER)) == std::string::npos)
-        return std::make_pair(BAD_VALUE, from_string(BAD_VALUE));
+    if ((pos = string_to_split.find(Delimiter)) == std::string::npos)
+        return std::make_pair(BadValue, from_string(BadValue));
     key = string_to_split.substr(0, pos);
     // string_to_split - value
     string_to_split.erase(0, pos + 1); // pos + 1 (delimiter length)
