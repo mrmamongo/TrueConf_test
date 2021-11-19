@@ -5,8 +5,8 @@
 #include <algorithm>
 #include <set>
 
-using container_map = std::map<std::string, std::set<char>>;
-using container_pair = std::pair<std::string, std::set<char>>;
+using container_map = std::map<std::string, std::multiset<char>>;
+using container_pair = std::pair<std::string, std::multiset<char>>;
 
 
 const char DELIMITER = ' ';
@@ -21,22 +21,22 @@ std::string sort_string(const std::string& unsorted) {
 struct compare_keys {
     const container_pair& pair_to_compare;
     explicit compare_keys(const container_pair& pair): pair_to_compare(pair){}
-    std::string comparsion_string_sorted = sort_string(pair_to_compare.first);
-    bool operator()(const container_pair& second_pair) {
+    std::string comparison_string_sorted = sort_string(pair_to_compare.first);
+    bool operator()(const container_pair& second_pair) const {
         std::string right_sorted = sort_string(second_pair.first);
-        return false;
+        return comparison_string_sorted == right_sorted;
     }
 };
 
-std::set<char> from_string(const std::string& s) {
-    std::set<char> out;
+std::multiset<char> from_string(const std::string& s) {
+    std::multiset<char> out;
     for (auto c : s) {
         out.insert(c);
     }
     return out;
 }
 
-std::string to_string(const std::set<char>& in_set) {
+std::string to_string(const std::multiset<char>& in_set) {
     std::string out;
     for (auto c : in_set){
         out.push_back(c);
@@ -44,15 +44,16 @@ std::string to_string(const std::set<char>& in_set) {
     return out;
 }
 
-
-
-
-void check_existence(container_map& map, const container_pair& key_value_pair) {
+void insert(container_map& map, const container_pair& key_value_pair) {
     auto found_item = std::find_if(std::begin(map), std::end(map), compare_keys(key_value_pair));
 
-    if (found_item == map.end()) return;
+    if (found_item == map.end()) {
+        map.insert(key_value_pair);
+        return;
+    }
 
-
+    std::cout << "Found match in " << key_value_pair.first << ": " << to_string(key_value_pair.second) << '\n';
+    map[found_item->first].insert(key_value_pair.second.begin(), key_value_pair.second.end());
 }
 
 void show_map(const container_map& map){
@@ -61,6 +62,7 @@ void show_map(const container_map& map){
         std::cout << val.first << ": " << to_string(val.second) << '\n';
     }
 }
+
 container_pair split_string(std::string string_to_split){
     size_t pos = 0;
     std::string key;
@@ -91,7 +93,7 @@ int main(int argc, char** argv) {
 
     std::cout << "Input file:\n";
     while(getline(file, line, '\n')) {
-        check_existence(container, split_string(line));
+        insert(container, split_string(line));
         std::cout << line << '\n';
     }
 
