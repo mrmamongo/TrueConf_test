@@ -68,35 +68,32 @@ container_pair split_string(std::string string_to_split){
     std::string key;
     if ((pos = string_to_split.find(DELIMITER)) == std::string::npos)
         return std::make_pair(BAD_VALUE, from_string(BAD_VALUE));
-
     key = string_to_split.substr(0, pos);
     // string_to_split - value
     string_to_split.erase(0, pos + 1); // pos + 1 (delimiter length)
     return std::make_pair(key, from_string(string_to_split));
 }
 
-
 int main(int argc, char** argv) {
     if (argc != 2) {
         std::cout << "Error: Incorrect CLI args\n";
         return 1;
     }
-
     std::ifstream file(argv[1]);
     std::string line;
     if (!file.is_open()) {
         std::cout << "Error: File is not opened\n";
         return 1;
     }
-
+    if (file.peek() == std::ifstream::traits_type::eof()) {
+        std::cout << "File is empty\n";
+        return 0;
+    }
     container_map container;
-
     std::cout << "Input file:\n";
-    while(getline(file, line, '\n')) {
+    while (getline(file, line, '\n')) {
         insert(container, split_string(line));
         std::cout << line << '\n';
     }
-
     show_map(container);
-    return 0;
 }
